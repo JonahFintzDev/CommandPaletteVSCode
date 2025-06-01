@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CmdPalVsCode;
 
@@ -12,6 +13,7 @@ internal sealed partial class VSCodePage : DynamicListPage
 {
     private readonly SettingsManager _settingsManager;
     private List<ListItem> _allItems = new List<ListItem>();
+    private Dictionary<ListItem, string> _lowerSearchTextCache = new Dictionary<ListItem, string>();
     public static bool LoadItems = true;
 
 
@@ -35,10 +37,11 @@ internal sealed partial class VSCodePage : DynamicListPage
         RaiseItemsChanged();
     }
 
-    public void InitializeItemList()
+    public async Task InitializeItemList()
     {
+        IsLoading = true;
         _allItems = new List<ListItem>();
-        var workspaces = VSCodeHandler.GetWorkspaces();
+        var workspaces = await VSCodeHandler.GetWorkspaces();
 
         foreach (var workspace in workspaces)
         {
@@ -78,17 +81,25 @@ internal sealed partial class VSCodePage : DynamicListPage
                     break;
             }
 
-            _allItems.Add(new ListItem(command)
+            var listItem = new ListItem(command)
             {
                 Title = details.Title,
                 Subtitle = Uri.UnescapeDataString(workspace.Path),
                 Details = details,
                 Icon = workspace.Instance.Icon,
-                Tags = tags.ToArray()
-            });
+                Tags = tags.ToArray(),
+                MoreCommands = new IContextItem[]
+                {
+                    new CommandContextItem(new CopyPathCommand(workspace.Path))
+                }
+            };
+
+            _allItems.Add(listItem);
+            _lowerSearchTextCache[listItem] = listItem.Subtitle.ToLower(CultureInfo.CurrentUICulture);
         }
 
         LoadItems = false;
+        IsLoading = false;
 
         // set LoadItems to true in 10s
         System.Threading.Tasks.Task.Delay(10000).ContinueWith(_ => Interlocked.Exchange(ref LoadItems, true));
@@ -96,13 +107,12 @@ internal sealed partial class VSCodePage : DynamicListPage
 
     public override IListItem[] GetItems()
     {
-        IsLoading = true;
         var items = new List<ListItem>();
         var lowerSearchString = SearchText.ToLower(CultureInfo.CurrentUICulture);
 
         if (LoadItems == true)
         {
-            InitializeItemList();
+            InitializeItemList().GetAwaiter().GetResult();
         }
 
         // filter items based on search text
@@ -120,7 +130,7 @@ internal sealed partial class VSCodePage : DynamicListPage
                 int charIndex = 0;
                 foreach (var character in lowerSearchString)
                 {
-                    charIndex = item.Title.ToLower(CultureInfo.CurrentUICulture).IndexOf(character, charIndex);
+                    charIndex = _lowerSearchTextCache[item].IndexOf(character, charIndex);
                     if (charIndex == -1)
                     {
                         return false;
@@ -135,9 +145,20 @@ internal sealed partial class VSCodePage : DynamicListPage
             });
         }
 
+
+        if (lowerSearchString == "reload")
+        {
+            // add reload option at the top
+            items.Insert(0, new ListItem(new ReloadVsCodeCommand(this))
+            {
+                Title = Resource.reload_items,
+                Icon = IconHelpers.FromRelativePath("Assets\\ReloadIcon.png"),
+            });
+        }
+
+
         if (items.Count == 0)
         {
-            IsLoading = false;
             return [
                 new ListItem(new NoOpCommand()) {
                     Title = Resource.no_items_found,
@@ -147,7 +168,7 @@ internal sealed partial class VSCodePage : DynamicListPage
             ];
         }
 
-        IsLoading = false;
+
         // Debug
 
         /* 

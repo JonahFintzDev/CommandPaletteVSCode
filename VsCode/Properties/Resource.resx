@@ -195,4 +195,7 @@
   <data name="setting_commandResult_option_keepopen_label" xml:space="preserve">
     <value>Keep Open</value>
   </data>
+  <data name="reload_items" xml:space="preserve">
+    <value>Reload Workspaces</value>
+  </data>
 </root>
