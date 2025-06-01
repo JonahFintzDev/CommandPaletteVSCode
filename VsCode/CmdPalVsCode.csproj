@@ -13,10 +13,15 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
+    
+    <!-- Performance Optimizations -->
+    <Optimize>true</Optimize>
+    <TieredCompilation>true</TieredCompilation>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\LargeTile.scale-125.png" />
     <None Remove="Assets\LargeTile.scale-150.png" />
+    <None Remove="Assets\ReloadIcon.png" />
     <None Remove="Assets\SmallTile.scale-125.png" />
     <None Remove="Assets\SmallTile.scale-150.png" />
     <None Remove="Assets\SplashScreen.scale-125.png" />
@@ -67,6 +72,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Update="Assets\ReloadIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="Assets\VsCodeIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -182,8 +190,9 @@
     <CsWinRTAotWarningLevel>2</CsWinRTAotWarningLevel>
     <!-- Suppress DynamicallyAccessedMemberTypes.PublicParameterlessConstructor in fallback code path of Windows SDK projection -->
     <WarningsNotAsErrors>IL2081</WarningsNotAsErrors>
+    
 
-    <PublishTrimmed>False</PublishTrimmed>
+    <PublishTrimmed>True</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
@@ -208,9 +217,11 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IsPublishable>True</IsPublishable>
+    <DebugType>none</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <IsPublishable>True</IsPublishable>
+    <DebugType>none</DebugType>
   </PropertyGroup>
 </Project>

@@ -124,6 +124,15 @@ namespace CmdPalVsCode.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reload Workspaces.
+        /// </summary>
+        internal static string reload_items {
+            get {
+                return ResourceManager.GetString("reload_items", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to What should happen after opening a VS Code workspace.
         /// </summary>
         internal static string setting_commandResult_desc {

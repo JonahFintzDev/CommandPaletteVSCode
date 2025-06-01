@@ -59,7 +59,7 @@ internal sealed partial class OpenVSCodeCommand : InvokableCommand
                 return CommandResult.KeepOpen();
             case "Dismiss":
             default:
-             return CommandResult.Dismiss();
+                return CommandResult.Dismiss();
         }
     }
 }
