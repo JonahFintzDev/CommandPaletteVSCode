@@ -46,7 +46,6 @@ internal sealed partial class OpenVSCodeCommand : InvokableCommand
         }
 
         ShellHelpers.OpenInShell(executablePath, arguments, null, ShellHelpers.ShellRunAsType.None, false);
-        VSCodePage.LoadItems = true;
 
         switch (commandResult)
         {
