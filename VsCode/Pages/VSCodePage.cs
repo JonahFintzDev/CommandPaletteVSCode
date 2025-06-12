@@ -54,7 +54,7 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
                 };
             }
 
-            return _filteredWorkspaces.Take(PageSize).ToArray();
+            return _filteredWorkspaces.ToArray();
         }
     }
 
@@ -83,18 +83,16 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
         IsLoading = true;
         RaiseItemsChanged();
 
+        var allFilteredItems = GetFilteredItems();
         var currentCount = _filteredWorkspaces.Count;
-        var moreItems = GetFilteredItems().Skip(currentCount).Take(PageSize).ToList();
+        var moreItems = allFilteredItems.Skip(currentCount).Take(PageSize).ToList();
 
-        if (moreItems.Count > 0)
+        if (moreItems.Any())
         {
             _filteredWorkspaces.AddRange(moreItems);
-            HasMoreItems = moreItems.Count == PageSize;
         }
-        else
-        {
-            HasMoreItems = false;
-        }
+
+        HasMoreItems = _filteredWorkspaces.Count < allFilteredItems.Count;
 
         IsLoading = false;
         RaiseItemsChanged();
@@ -199,9 +197,15 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 
     private List<ListItem> GetFilteredItems()
     {
+        List<ListItem> currentItems;
+        lock (_itemsLock)
+        {
+            currentItems = new List<ListItem>(_allItems);
+        }
+
         if (string.IsNullOrWhiteSpace(SearchText))
         {
-            return _allItems;
+            return currentItems;
         }
 
         var matcher = StringMatcher.Instance;
@@ -209,11 +213,11 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 
         if (_settingsManager.UseStrichtSearch)
         {
-            return _allItems.Where(x => x.Subtitle.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+            return currentItems.Where(x => x.Subtitle.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
         }
         else
         {
-            return _allItems
+            return currentItems
                 .Select(item => new { item, match = matcher.FuzzyMatch(SearchText, item.Title) })
                 .Where(x => x.match.Success)
                 .OrderByDescending(x => x.match.Score)
