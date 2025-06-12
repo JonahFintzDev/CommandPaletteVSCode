@@ -5,7 +5,6 @@ namespace CmdPalVsCode;
 
 public partial class CmdPalVsCodeCommandsProvider : CommandProvider
 {
-    private readonly ICommandItem[] _commands;
     private readonly SettingsManager _settingsManager = new();
     public CmdPalVsCodeCommandsProvider()
     {
@@ -13,7 +12,14 @@ public partial class CmdPalVsCodeCommandsProvider : CommandProvider
         Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.png");
 
         Settings = _settingsManager.Settings;
-        _commands = [
+
+        VSCodeHandler.LoadInstances(_settingsManager.PreferredEdition);
+    }
+
+
+    public override ICommandItem[] TopLevelCommands()
+    {
+        return [
             new CommandItem(new VSCodePage(_settingsManager)) {
                 Title = DisplayName,
                 MoreCommands = [
@@ -21,14 +27,5 @@ public partial class CmdPalVsCodeCommandsProvider : CommandProvider
                 ],
             },
         ];
-
-        VSCodeHandler.LoadInstances(_settingsManager.PreferredEdition);
-
-    }
-
-
-    public override ICommandItem[] TopLevelCommands()
-    {
-        return _commands;
     }
 }
