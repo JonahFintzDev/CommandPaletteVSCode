@@ -11,7 +11,6 @@ namespace CmdPalVsCode;
 
 internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 {
-    private const int PageSize = 50;
     private const int SearchDelay = 200;
 
     private readonly SettingsManager _settingsManager;
@@ -85,7 +84,7 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 
         var allFilteredItems = GetFilteredItems();
         var currentCount = _filteredWorkspaces.Count;
-        var moreItems = allFilteredItems.Skip(currentCount).Take(PageSize).ToList();
+        var moreItems = allFilteredItems.Skip(currentCount).Take(_settingsManager.PageSize).ToList();
 
         if (moreItems.Any())
         {
@@ -104,8 +103,8 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
         {
             var filtered = GetFilteredItems();
             _filteredWorkspaces.Clear();
-            _filteredWorkspaces.AddRange(filtered.Take(PageSize));
-            HasMoreItems = filtered.Count > PageSize;
+            _filteredWorkspaces.AddRange(filtered.Take(_settingsManager.PageSize));
+            HasMoreItems = filtered.Count > _settingsManager.PageSize;
         }
     }
 

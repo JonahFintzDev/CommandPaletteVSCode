@@ -36,8 +36,6 @@ public class SettingsManager : JsonSettingsManager
         new ChoiceSetSetting.Choice(Resource.setting_commandResult_option_keepopen_label, "KeepOpen"),
     ];
 
-
-
     private readonly ToggleSetting _useStrictSearch = new(
         Namespaced(nameof(UseStrichtSearch)),
         Resource.settings_useStrictSearch_label,
@@ -56,8 +54,6 @@ public class SettingsManager : JsonSettingsManager
         Resource.setting_preferredEdition_desc,
         _preferredEditionChoices);
 
-
-
     private readonly ChoiceSetSetting _tagType = new(
         Namespaced(nameof(TagType)),
         Resource.setting_tagType_label,
@@ -70,20 +66,33 @@ public class SettingsManager : JsonSettingsManager
         Resource.setting_commandResult_desc,
         _commandResultChoices);
 
+    private readonly TextSetting _pageSize = new(
+        Namespaced(nameof(PageSize)),
+        Resource.setting_pageSize_label,
+        Resource.setting_pageSize_desc,
+        "10");
+
     public bool UseStrichtSearch => _useStrictSearch.Value;
     public bool ShowDetails => _showDetails.Value;
-
     public string PreferredEdition => _preferredEdition.Value ?? "Default";
     public string TagType => _tagType.Value ?? "Type";
     public string CommandResult => _commandResult.Value ?? "Dismiss";
-
+    public int PageSize
+    {
+        get
+        {
+            if (int.TryParse(_pageSize.Value, out int size) && size > 0)
+            {
+                return size;
+            }
+            return 10; // Default value
+        }
+    }
 
     internal static string SettingsJsonPath()
     {
         var directory = Utilities.BaseSettingsPath("Microsoft.CmdPal");
         Directory.CreateDirectory(directory);
-
-        // now, the state is just next to the exe
         return Path.Combine(directory, "settings.json");
     }
 
@@ -96,6 +105,7 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_tagType);
         Settings.Add(_preferredEdition);
         Settings.Add(_commandResult);
+        Settings.Add(_pageSize);
 
         // Load settings from file upon initialization
         LoadSettings();

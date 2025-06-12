@@ -250,7 +250,7 @@ namespace CmdPalVsCode.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &amp; Target.
+        ///   Looks up a localized string similar to Type & Target.
         /// </summary>
         internal static string setting_tagType_option_typeandtarget_label {
             get {
@@ -291,6 +291,24 @@ namespace CmdPalVsCode.Properties {
         internal static string settings_useStrictSearch_label {
             get {
                 return ResourceManager.GetString("settings_useStrictSearch_label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page Size.
+        /// </summary>
+        internal static string setting_pageSize_label {
+            get {
+                return ResourceManager.GetString("setting_pageSize_label", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Number of items to load per page..
+        /// </summary>
+        internal static string setting_pageSize_desc {
+            get {
+                return ResourceManager.GetString("setting_pageSize_desc", resourceCulture);
             }
         }
     }

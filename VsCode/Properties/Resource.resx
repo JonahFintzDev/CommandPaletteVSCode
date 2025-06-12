@@ -195,4 +195,10 @@
   <data name="setting_commandResult_option_keepopen_label" xml:space="preserve">
     <value>Keep Open</value>
   </data>
+  <data name="setting_pageSize_label" xml:space="preserve">
+    <value>Page Size</value>
+  </data>
+  <data name="setting_pageSize_desc" xml:space="preserve">
+    <value>Number of items to load per page.</value>
+  </data>
 </root>
