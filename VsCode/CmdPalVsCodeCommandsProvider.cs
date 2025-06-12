@@ -9,7 +9,7 @@ public partial class CmdPalVsCodeCommandsProvider : CommandProvider
     public CmdPalVsCodeCommandsProvider()
     {
         DisplayName = "VS Code";
-        Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.png");
+        Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.svg");
 
         Settings = _settingsManager.Settings;
 

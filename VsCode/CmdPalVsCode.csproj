@@ -33,7 +33,7 @@
     <None Remove="Assets\Square44x44Logo.targetsize-32.png" />
     <None Remove="Assets\StoreLogo.scale-125.png" />
     <None Remove="Assets\StoreLogo.scale-150.png" />
-    <None Remove="Assets\VsCodeIcon.png" />
+    <None Remove="Assets\VsCodeIcon.svg" />
     <None Remove="Assets\Wide310x150Logo.scale-125.png" />
     <None Remove="Assets\Wide310x150Logo.scale-150.png" />
   </ItemGroup>
@@ -67,7 +67,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Update="Assets\VsCodeIcon.png">
+    <Content Update="Assets\VsCodeIcon.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Assets\VsCodeIcon.svg">

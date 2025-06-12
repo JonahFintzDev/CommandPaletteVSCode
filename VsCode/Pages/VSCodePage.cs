@@ -21,7 +21,7 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 
     public VSCodePage(SettingsManager settingsManager)
     {
-        Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.png");
+        Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.svg");
         Title = Resource.page_title;
         Name = Resource.page_command_name;
         
@@ -54,7 +54,7 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
                 new ListItem(new NoOpCommand()) {
                     Title = Resource.no_items_found,
                     Subtitle = Resource.no_items_found_subtitle,
-                    Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.png")
+                    Icon = IconHelpers.FromRelativePath("Assets\\VsCodeIcon.svg")
                 }
             ];
         }

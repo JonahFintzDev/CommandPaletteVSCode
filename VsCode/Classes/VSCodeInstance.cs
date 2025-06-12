@@ -64,7 +64,7 @@ internal class VSCodeInstance
                 return IconHelpers.FromRelativePath("Assets\\VsCodeInsiderIcon.svg");
             case VSCodeType.Default:
             default:
-                return IconHelpers.FromRelativePath("Assets\\VsCodeIcon.png");
+                return IconHelpers.FromRelativePath("Assets\\VsCodeIcon.svg");
         }
     }
 }
