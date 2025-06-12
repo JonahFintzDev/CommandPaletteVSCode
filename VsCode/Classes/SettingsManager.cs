@@ -70,7 +70,13 @@ public class SettingsManager : JsonSettingsManager
         Namespaced(nameof(PageSize)),
         Resource.setting_pageSize_label,
         Resource.setting_pageSize_desc,
-        "10");
+        "50");
+
+    private readonly TextSetting _searchDelay = new(
+        Namespaced(nameof(SearchDelay)),
+        Resource.setting_searchDelay_label,
+        Resource.setting_searchDelay_desc,
+        "200");
 
     public bool UseStrichtSearch => _useStrictSearch.Value;
     public bool ShowDetails => _showDetails.Value;
@@ -86,6 +92,17 @@ public class SettingsManager : JsonSettingsManager
                 return size;
             }
             return 10; // Default value
+        }
+    }
+    public int SearchDelay
+    {
+        get
+        {
+            if (int.TryParse(_searchDelay.Value, out int delay) && delay >= 0)
+            {
+                return delay;
+            }
+            return 200; // Default value
         }
     }
 
@@ -106,6 +123,7 @@ public class SettingsManager : JsonSettingsManager
         Settings.Add(_preferredEdition);
         Settings.Add(_commandResult);
         Settings.Add(_pageSize);
+        Settings.Add(_searchDelay);
 
         // Load settings from file upon initialization
         LoadSettings();

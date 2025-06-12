@@ -311,5 +311,23 @@ namespace CmdPalVsCode.Properties {
                 return ResourceManager.GetString("setting_pageSize_desc", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search Delay (ms).
+        /// </summary>
+        internal static string setting_searchDelay_label {
+            get {
+                return ResourceManager.GetString("setting_searchDelay_label", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The delay in milliseconds before a search is performed..
+        /// </summary>
+        internal static string setting_searchDelay_desc {
+            get {
+                return ResourceManager.GetString("setting_searchDelay_desc", resourceCulture);
+            }
+        }
     }
 }

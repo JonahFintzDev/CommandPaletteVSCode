@@ -201,4 +201,10 @@
   <data name="setting_pageSize_desc" xml:space="preserve">
     <value>Number of items to load per page.</value>
   </data>
+  <data name="setting_searchDelay_label" xml:space="preserve">
+    <value>Search Delay (ms)</value>
+  </data>
+  <data name="setting_searchDelay_desc" xml:space="preserve">
+    <value>The delay in milliseconds before a search is performed.</value>
+  </data>
 </root>

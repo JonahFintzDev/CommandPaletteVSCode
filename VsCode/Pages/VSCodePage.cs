@@ -11,8 +11,6 @@ namespace CmdPalVsCode;
 
 internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 {
-    private const int SearchDelay = 200;
-
     private readonly SettingsManager _settingsManager;
     private readonly List<ListItem> _allItems = new List<ListItem>();
     private readonly List<ListItem> _filteredWorkspaces = new List<ListItem>();
@@ -63,7 +61,7 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
         _cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = _cancellationTokenSource.Token;
 
-        Task.Delay(SearchDelay, cancellationToken).ContinueWith(
+        Task.Delay(_settingsManager.SearchDelay, cancellationToken).ContinueWith(
             t =>
             {
                 if (t.IsCanceled)
