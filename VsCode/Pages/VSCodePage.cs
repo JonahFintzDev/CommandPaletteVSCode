@@ -5,16 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CmdPalVsCode;
 
-internal sealed partial class VSCodePage : DynamicListPage
+internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 {
     private readonly SettingsManager _settingsManager;
     private readonly List<ListItem> _allItems = new List<ListItem>();
     private readonly object _itemsLock = new object();
-    private bool _isLoading = false;
+    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
     public VSCodePage(SettingsManager settingsManager)
     {
@@ -24,14 +25,12 @@ internal sealed partial class VSCodePage : DynamicListPage
         
         _settingsManager = settingsManager;
         ShowDetails = _settingsManager.ShowDetails;
-        _settingsManager.Settings.SettingsChanged += (s, a) =>
-        {
-            ShowDetails = _settingsManager.ShowDetails;
-        };
+        _settingsManager.Settings.SettingsChanged += OnSettingsChanged;
     }
 
     public override void UpdateSearchText(string oldSearch, string newSearch)
     {
+        // The filtering is handled by GetItems, so we just need to notify that the list has changed.
         RaiseItemsChanged();
     }
 
@@ -39,22 +38,16 @@ internal sealed partial class VSCodePage : DynamicListPage
     {
         lock (_itemsLock)
         {
-            if (!_isLoading && _allItems.Count == 0)
+            if (!IsLoading && _allItems.Count == 0)
             {
                 // First time loading, or after a manual clear.
-                Task.Run(LoadWorkspacesAsync);
+                Task.Run(() => LoadWorkspacesAsync(_cancellationTokenSource.Token));
             }
         }
 
         var filteredItems = GetFilteredItems();
 
-        bool currentIsLoading;
-        lock (_itemsLock)
-        {
-            currentIsLoading = _isLoading;
-        }
-
-        if (filteredItems.Count == 0 && !currentIsLoading)
+        if (filteredItems.Count == 0 && !IsLoading)
         {
             return [
                 new ListItem(new NoOpCommand()) {
@@ -68,41 +61,37 @@ internal sealed partial class VSCodePage : DynamicListPage
         return filteredItems.ToArray();
     }
 
-    private async Task LoadWorkspacesAsync()
+    private async Task LoadWorkspacesAsync(CancellationToken cancellationToken)
     {
-        lock (_itemsLock)
-        {
-            if (_isLoading)
-            {
-                return; // Already loading
-            }
-            _isLoading = true;
-            _allItems.Clear();
-        }
-
         IsLoading = true;
         RaiseItemsChanged();
 
         try
         {
-            var workspaces = VSCodeHandler.GetWorkspaces();
+            var workspaces = await Task.Run(() => VSCodeHandler.GetWorkspaces(cancellationToken), cancellationToken);
+            if (cancellationToken.IsCancellationRequested) return;
 
+            var newItems = new List<ListItem>();
             foreach (var workspace in workspaces)
             {
+                if (cancellationToken.IsCancellationRequested) return;
                 var listItem = CreateListItemForWorkspace(workspace);
-                lock (_itemsLock)
-                {
-                    _allItems.Add(listItem);
-                }
-                RaiseItemsChanged();
+                newItems.Add(listItem);
             }
+
+            lock (_itemsLock)
+            {
+                if (cancellationToken.IsCancellationRequested) return;
+                _allItems.Clear();
+                _allItems.AddRange(newItems);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Task was cancelled, which is expected on dispose.
         }
         finally
         {
-            lock (_itemsLock)
-            {
-                _isLoading = false;
-            }
             IsLoading = false;
             RaiseItemsChanged();
         }
@@ -169,7 +158,7 @@ internal sealed partial class VSCodePage : DynamicListPage
 
         if (_settingsManager.UseStrichtSearch)
         {
-            return currentItems.Where(x => x.Subtitle.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+            return currentItems.Where(x => x.Subtitle.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || x.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
         }
         else
         {
@@ -191,22 +180,17 @@ internal sealed partial class VSCodePage : DynamicListPage
                 return true;
             }).ToList();
         }
-        // Debug
+    }
 
-        /* 
-        var debugItem = new ListItem(new NoOpCommand())
-        {
-            Title = "Debug",
-            Details = new Details()
-            {
-                Title = "Debug Information",
-                Metadata = [
-                new DetailsElement() { Key = "Timestamp", Data = new DetailsTags() { Tags = [new Tag(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))] } },
-                new DetailsElement() { Key = "Timestamp", Data = new DetailsTags() { Tags = [new Tag(Debug)] } },
-                ]
-            },
-        };
-        items.Insert(0, debugItem);
-        */
+    private void OnSettingsChanged(object sender, Settings args)
+    {
+        ShowDetails = _settingsManager.ShowDetails;
+    }
+    
+    public void Dispose()
+    {
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
+        _settingsManager.Settings.SettingsChanged -= OnSettingsChanged;
     }
 }

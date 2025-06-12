@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 
 namespace CmdPalVsCode;
 
@@ -131,12 +132,14 @@ internal static class VSCodeHandler
     /// Retrieves a list of workspaces from the loaded VS Code instances.
     /// </summary>
     /// <returns>List of VS Code workspaces.</returns>
-    public static List<VSCodeWorkspace> GetWorkspaces()
+    public static List<VSCodeWorkspace> GetWorkspaces(CancellationToken cancellationToken)
     {
         var outWorkspaces = new List<VSCodeWorkspace>();
 
         foreach (var instance in Instances)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             // check if storage file exists
             if (!File.Exists(instance.ExecutablePath))
             {
@@ -172,6 +175,7 @@ internal static class VSCodeHandler
                                 {
                                     foreach (var entry in entries.EnumerateArray())
                                     {
+                                        cancellationToken.ThrowIfCancellationRequested();
                                         string? pathString = null;
                                         if (entry.TryGetProperty("folderUri", out var path))
                                         {
@@ -231,6 +235,7 @@ internal static class VSCodeHandler
                         {
                             foreach (var workspace in workspaces.EnumerateArray())
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 if (workspace.TryGetProperty("configURIPath", out var path))
                                 {
                                     var pathString = path.GetString();
@@ -249,6 +254,7 @@ internal static class VSCodeHandler
                         {
                             foreach (var folder in folders.EnumerateArray())
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 if (folder.TryGetProperty("folderUri", out var path))
                                 {
                                     var pathString = path.GetString();
