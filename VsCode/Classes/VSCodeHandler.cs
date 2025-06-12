@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CmdPalVsCode;
 
@@ -129,6 +130,16 @@ internal static class VSCodeHandler
     }
 
     /// <summary>
+    /// Retrieves a list of workspaces from the loaded VS Code instances asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation. The value of the TResult parameter contains the list of VS Code workspaces.</returns>
+    public static Task<List<VSCodeWorkspace>> GetWorkspacesAsync(CancellationToken cancellationToken)
+    {
+        return Task.Run(() => GetWorkspaces(cancellationToken), cancellationToken);
+    }
+
+    /// <summary>
     /// Retrieves a list of workspaces from the loaded VS Code instances.
     /// </summary>
     /// <returns>List of VS Code workspaces.</returns>
@@ -138,8 +149,6 @@ internal static class VSCodeHandler
 
         foreach (var instance in Instances)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             // check if storage file exists
             if (!File.Exists(instance.ExecutablePath))
             {
@@ -175,7 +184,6 @@ internal static class VSCodeHandler
                                 {
                                     foreach (var entry in entries.EnumerateArray())
                                     {
-                                        cancellationToken.ThrowIfCancellationRequested();
                                         string? pathString = null;
                                         if (entry.TryGetProperty("folderUri", out var path))
                                         {
@@ -235,7 +243,6 @@ internal static class VSCodeHandler
                         {
                             foreach (var workspace in workspaces.EnumerateArray())
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
                                 if (workspace.TryGetProperty("configURIPath", out var path))
                                 {
                                     var pathString = path.GetString();
@@ -254,7 +261,6 @@ internal static class VSCodeHandler
                         {
                             foreach (var folder in folders.EnumerateArray())
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
                                 if (folder.TryGetProperty("folderUri", out var path))
                                 {
                                     var pathString = path.GetString();
