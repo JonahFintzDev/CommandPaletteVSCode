@@ -12,10 +12,12 @@ namespace CmdPalVsCode;
 
 internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 {
+    private const int PageSize = 50;
     private readonly SettingsManager _settingsManager;
     private readonly List<ListItem> _allItems = new List<ListItem>();
     private readonly object _itemsLock = new object();
     private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+    private int _currentPage = 1;
 
     public VSCodePage(SettingsManager settingsManager)
     {
@@ -30,7 +32,7 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
 
     public override void UpdateSearchText(string oldSearch, string newSearch)
     {
-        // The filtering is handled by GetItems, so we just need to notify that the list has changed.
+        _currentPage = 1; // Reset to first page on new search
         RaiseItemsChanged();
     }
 
@@ -40,7 +42,6 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
         {
             if (!IsLoading && _allItems.Count == 0)
             {
-                // First time loading, or after a manual clear.
                 Task.Run(() => LoadWorkspacesAsync(_cancellationTokenSource.Token));
             }
         }
@@ -58,7 +59,13 @@ internal sealed partial class VSCodePage : DynamicListPage, IDisposable
             ];
         }
 
-        return filteredItems.ToArray();
+        return filteredItems.Take(PageSize * _currentPage).ToArray();
+    }
+    
+    public override void LoadMore()
+    {
+        _currentPage++;
+        RaiseItemsChanged();
     }
 
     private async Task LoadWorkspacesAsync(CancellationToken cancellationToken)
