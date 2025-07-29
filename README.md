@@ -1,5 +1,11 @@
 # Command Palette for Visual Studio Code
 
+[![Deprecated](https://img.shields.io/badge/status-deprecated-red.svg)](https://github.com/JonahFintzDev/CommandPaletteVSCode/)
+
+> [!WARNING]  
+> **This repository is no longer maintained.**  
+> Please see [tanchekwei/VisualStudioCodeForCommandPalette](https://github.com/tanchekwei/VisualStudioCodeForCommandPalette) for an alternative extension with better support.
+
 ## Overview
 
 This project provides a command palette extension for opening Visual Studio Code workspaces.
